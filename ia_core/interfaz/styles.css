@@ -1,0 +1,408 @@
+/* ========================================
+   RESET & GLOBAL APP LOOK
+   ======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #2c3e50 0%, #1a1f2e 50%, #0f1419 100%);
+}
+
+/* ----------------------------------- */
+/* Estilo del Título (Playfair Display) */
+/* ----------------------------------- */
+.font-serif-title {
+    font-family: 'Playfair Display', serif;
+}
+
+
+/* ========================================
+   1. LOGIN VIEW BACKGROUND
+   ======================================== */
+#login-view {
+    background: linear-gradient(135deg, #2c3e50 0%, #1a1f2e 50%, #0f1419 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+#login-view::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(52, 152, 219, 0.1) 0%, transparent 70%);
+    animation: pulse 15s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(10%, 10%) scale(1.1); }
+}
+
+/* ----------------------------------- */
+/* Estilos de Card de Login */
+/* ----------------------------------- */
+.card {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
+                0 0 1px rgba(255, 255, 255, 0.1) inset; 
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    position: relative;
+    z-index: 1;
+}
+
+
+/* ========================================
+   2. CHAT AREA Y BURBUJAS (Premium iOS Style)
+   ======================================== */
+
+/* Asegurar que el chat-view use todo el espacio disponible */
+#chat-view {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+}
+
+/* El contenedor de mensajes debe crecer y usar flexbox */
+#chat-messages {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+    padding: 1rem !important;
+    overflow-y: auto !important;
+}
+
+/* Estilos del fondo */
+.chat-container {
+    background: linear-gradient(135deg, #2c3e50 0%, #1a1f2e 50%, #0f1419 100%);
+    position: relative;
+}
+
+.chat-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: radial-gradient(ellipse at top, rgba(52, 152, 219, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.message-bubble {
+    max-width: 75%; 
+    padding: 0.95rem 1.3rem;
+    margin-bottom: 0.6rem;
+    word-wrap: break-word;
+    animation: slideInMessage 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    line-height: 1.5;
+    font-size: 0.95rem;
+    position: relative;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+}
+
+@keyframes slideInMessage {
+    from { 
+        opacity: 0; 
+        transform: translateY(15px) scale(0.96); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+    }
+}
+
+/* Burbuja del Usuario: Estilo iOS moderno (Derecha) */
+.user-message-style {
+    background: linear-gradient(135deg, #4dd0e1 0%, #9575cd 50%, #ba68c8 100%);
+    color: #ffffff;
+    margin-left: auto;
+    border-radius: 1.3rem;
+    border-top-right-radius: 0.3rem;
+    box-shadow: 0 4px 15px rgba(77, 208, 225, 0.35),
+                0 8px 25px rgba(149, 117, 205, 0.25);
+    border: none;
+    font-weight: 500;
+}
+
+.user-message-style::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, transparent 60%);
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+/* Burbuja de MindCare (Asistente): Estilo iOS gris claro (Izquierda) */
+.mindcare-message-style {
+    background: linear-gradient(135deg, #e8eaf0 0%, #d4d7dd 100%);
+    color: #1a1f2e;
+    margin-right: auto;
+    border-radius: 1.3rem;
+    border-top-left-radius: 0.3rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12),
+                0 4px 16px rgba(0, 0, 0, 0.08);
+    border: none;
+    font-weight: 500;
+}
+
+.mindcare-message-style::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, transparent 100%);
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+
+/* ========================================
+   2.5 HEADER Y FOOTER DEL CHAT (Premium)
+   ======================================== */
+#main-app-views header {
+    background: linear-gradient(180deg, rgba(30, 33, 43, 0.98) 0%, rgba(26, 31, 46, 0.95) 100%);
+    backdrop-filter: blur(25px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+#main-app-views header h1 {
+    background: linear-gradient(135deg, #ffffff 0%, #b8c5db 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+footer.bg-dark-card {
+    background: linear-gradient(180deg, rgba(26, 31, 46, 0.95) 0%, rgba(15, 20, 25, 0.98) 100%);
+    backdrop-filter: blur(25px) saturate(180%);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Reducir padding del footer */
+footer.bg-dark-card > div {
+    padding: 0.75rem 1rem !important;
+}
+
+/* Input mejorado estilo iOS */
+#user-input {
+    font-size: 0.95rem;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+}
+
+#user-input::placeholder {
+    color: rgba(160, 160, 160, 0.7);
+    font-weight: 400;
+}
+
+
+/* ========================================
+   5. VISTA DE ALERTAS - DASHBOARD EMOCIONAL
+   ======================================== */
+.emotion-card {
+    background: linear-gradient(135deg, rgba(62, 68, 87, 0.6) 0%, rgba(45, 50, 66, 0.6) 100%);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.2rem;
+    padding: 1.2rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.emotion-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.emotion-card.accent-red {
+    border-left: 4px solid #ef4444;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(62, 68, 87, 0.6) 100%);
+}
+
+.emotion-card.accent-yellow {
+    border-left: 4px solid #eab308;
+    background: linear-gradient(135deg, rgba(234, 179, 8, 0.15) 0%, rgba(62, 68, 87, 0.6) 100%);
+}
+
+.emotion-card.accent-blue {
+    border-left: 4px solid #3b82f6;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(62, 68, 87, 0.6) 100%);
+}
+
+/* Estadísticas circulares */
+.stat-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+    border: 4px solid rgba(139, 92, 246, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+    position: relative;
+}
+
+.stat-circle::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+    opacity: 0.2;
+    filter: blur(8px);
+    z-index: -1;
+}
+
+/* Gráfico simple de línea */
+.chart-container {
+    background: linear-gradient(135deg, rgba(30, 33, 43, 0.8) 0%, rgba(20, 23, 33, 0.8) 100%);
+    border-radius: 1rem;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Etiquetas de emociones */
+.emotion-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.emotion-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    box-shadow: 0 0 10px currentColor;
+}
+/* ========================================
+   3. MOOD & ANALYSIS VIEW (EMOJIS)
+   ======================================== */
+.emoji-btn {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+    border: 2px solid rgba(255, 255, 255, 0.15); 
+    font-size: 2.2rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25),
+                0 0 1px rgba(255, 255, 255, 0.1) inset;
+    backdrop-filter: blur(10px);
+}
+
+.emoji-btn:hover {
+    transform: scale(1.12) translateY(-2px);
+    border-color: rgba(77, 208, 225, 0.6);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(77, 208, 225, 0.3);
+}
+
+.emoji-btn.ring-4 {
+    background: linear-gradient(135deg, rgba(77, 208, 225, 0.25) 0%, rgba(149, 117, 205, 0.2) 100%);
+    border-color: #4dd0e1; 
+    transform: scale(1.08);
+    box-shadow: 0 0 25px rgba(77, 208, 225, 0.6),
+                0 8px 30px rgba(149, 117, 205, 0.4);
+}
+
+
+/* ========================================
+   4. BOTTOM NAV (Premium iOS Style - 2 columnas)
+   ======================================== */
+.bottom-nav {
+    padding: 0.6rem 0 0.75rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    background: linear-gradient(180deg, rgba(15, 20, 25, 0.95) 0%, rgba(10, 15, 20, 0.98) 100%);
+    backdrop-filter: blur(25px) saturate(180%);
+    box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.4);
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+}
+
+.nav-item {
+    text-align: center;
+    color: #8b92a8;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 0.4rem 0;
+    position: relative;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+.nav-item svg {
+    transition: all 0.3s ease;
+    opacity: 0.7;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.nav-item:hover {
+    transform: translateY(-3px);
+    color: #b8c5db;
+}
+
+.nav-item:hover svg {
+    transform: scale(1.12);
+    opacity: 1;
+}
+
+/* Botón de navegación activo - Estilo iOS */
+.nav-item.active {
+    color: #4dd0e1;
+    font-weight: 600;
+}
+
+.nav-item.active svg {
+    transform: scale(1.15);
+    opacity: 1;
+    filter: drop-shadow(0 0 10px rgba(77, 208, 225, 0.7));
+}
+
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: -0.85rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(90deg, #4dd0e1 0%, #9575cd 100%);
+    border-radius: 0 0 3px 3px;
+    box-shadow: 0 2px 10px rgba(77, 208, 225, 0.6);
+}

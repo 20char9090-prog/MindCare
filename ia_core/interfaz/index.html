@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindCare - Asistente Terapéutico</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Scroll y estilos chat */
+        .chat-container::-webkit-scrollbar { width: 8px; }
+        .chat-container::-webkit-scrollbar-thumb { background-color: #4A5568; border-radius: 4px; }
+        .chat-container::-webkit-scrollbar-track { background: #10172a; }
+
+        .mindcare-message-style {
+            background-color: #1e2636; 
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            max-width: 80%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .user-message-style {
+            background: linear-gradient(to right, #4dd0e1, #f06292); 
+            color: #ffffff;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            max-width: 80%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .nav-item.active {
+            color: #4dd0e1; 
+            font-weight: 700; 
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'dark-bg': '#0b1120',
+                        'dark-card': '#1e2636',
+                        'input-bg': 'rgba(255, 255, 255, 0.08)',
+                        'text-light': '#e8e8e8',
+                        'text-muted': '#9ba3b4',
+                        'mind-blue': '#4dd0e1',
+                        'mind-risk-high': '#e74c3c',
+                        'mind-risk-medium': '#f1c40f',
+                        'mind-risk-low': '#2ecc71'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter'],
+                        'serif-title': ['Playfair Display']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="h-screen bg-dark-bg text-text-light font-sans overflow-hidden">
+
+    <!-- LOGIN -->
+    <section id="login-view" class="h-full flex items-center justify-center px-6">
+        <div class="bg-dark-card p-8 rounded-3xl shadow-xl w-full max-w-sm text-center">
+
+            <div class="bg-gradient-to-br from-cyan-400 to-fuchsia-500 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+
+            <h1 class="text-3xl font-serif-title mb-2">MindCare</h1>
+            <p class="text-text-muted mb-6">Tu Asistente de Bienestar</p>
+
+            <input type="email" placeholder="Correo / Nombre" id="username-input" class="w-full p-3 rounded-xl bg-input-bg mb-3 focus:ring-2 focus:ring-mind-blue outline-none">
+            <input type="password" placeholder="Contraseña" id="password-input" class="w-full p-3 rounded-xl bg-input-bg mb-5 focus:ring-2 focus:ring-mind-blue outline-none">
+
+            <button id="start-session-button"
+                class="w-full bg-gradient-to-r from-cyan-400 to-fuchsia-500 py-3 rounded-xl font-bold hover:scale-[1.01] transition">
+                Iniciar Sesión
+            </button>
+        </div>
+    </section>
+
+    <!-- APP -->
+    <section id="main-app-views" class="hidden flex flex-col h-full">
+
+        <header class="p-4 flex justify-between items-center bg-dark-bg border-b border-dark-card">
+            <h2 class="text-xl font-serif-title">MindCare AI</h2>
+            <button id="nav-logout-button" class="text-text-muted hover:text-white transition">Salir</button>
+        </header>
+
+        <main class="flex-grow overflow-y-auto pb-24 px-4 max-w-xl mx-auto w-full chat-container">
+
+            <!-- CHAT -->
+            <div id="chat-view" class="pt-4 space-y-4">
+                
+                <h2 class="text-3xl font-serif-title mb-4">Chat Terapéutico</h2>
+                
+                <div id="risk-alert-display" class="hidden text-sm p-2 rounded-lg mb-2 text-center font-semibold"></div>
+
+                <div id="chat-messages" class="space-y-4"></div>
+
+                <div class="fixed bottom-16 left-0 right-0 max-w-xl mx-auto px-4">
+                    <div class="bg-dark-card border border-gray-700 p-3 rounded-2xl flex items-center gap-3 shadow-lg">
+                        
+                        <div id="loading-indicator" class="hidden">
+                            <svg class="animate-spin h-5 w-5 text-mind-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                        
+                        <input id="user-input" class="flex-grow bg-transparent outline-none text-text-light" placeholder="Escribe tu mensaje...">
+                        <button id="send-button" class="bg-gradient-to-r from-cyan-400 to-fuchsia-500 p-2 rounded-full">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATS -->
+            <div id="stats-view" class="hidden pt-6">
+                <h2 class="text-3xl font-serif-title text-mind-blue mb-6">Tu Viaje de Bienestar</h2>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-dark-card p-5 rounded-2xl">
+                        <p class="text-text-muted text-sm">Interacciones</p>
+                        <p class="text-4xl text-mind-blue font-bold">45</p>
+                    </div>
+                    <div class="bg-dark-card p-5 rounded-2xl">
+                        <p class="text-text-muted text-sm">Último Estado</p>
+                        <div class="flex items-center gap-3 mt-2">
+                            <span class="text-3xl">😊</span>
+                            <span class="text-sm text-text-muted">08/2027</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-dark-card p-6 rounded-2xl mb-6">
+                    <p class="text-text-muted mb-3">Tendencia Emocional</p>
+                    <div class="h-40 bg-dark-bg border border-gray-700 rounded-xl flex items-center justify-center text-sm text-text-muted">
+                        [ Gráfico ]
+                    </div>
+                </div>
+            </div>
+
+            <!-- ALERTS -->
+            <div id="alerts-view" class="hidden pt-6">
+                <h2 class="text-3xl font-serif-title text-mind-blue mb-6">Alertas de Riesgo</h2>
+                <div id="alerts-list" class="space-y-4">
+                    <p id="no-alerts-message" class="text-text-muted text-center hidden">No tienes alertas de riesgo registradas.</p>
+                </div>
+                <div class="mt-8 text-center">
+                    <button id="go-to-resources" class="text-mind-blue border border-mind-blue py-2 px-4 rounded-xl hover:bg-mind-blue hover:text-dark-bg transition">
+                        Ver Recursos de Apoyo
+                    </button>
+                </div>
+            </div>
+
+            <!-- HISTORY -->
+            <div id="history-view" class="hidden p-4">
+                <h2 class="text-xl font-bold mb-4">Historial de Mensajes de Usuarios</h2>
+                <div id="all-alerts-container" class="space-y-2">
+                    <!-- Aquí se cargarán dinámicamente todas las alertas -->
+                </div>
+            </div>
+
+            <!-- RESOURCES -->
+            <div id="resources-view" class="hidden pt-6">
+                <h2 class="text-3xl font-serif-title text-mind-blue mb-6">Recursos y Ayuda</h2>
+                <p class="text-text-light mb-4">Aquí puedes encontrar enlaces a líneas de ayuda, terapeutas y guías de bienestar.</p>
+                <ul class="space-y-3">
+                    <li class="bg-dark-card p-3 rounded-lg"><a href="#" class="text-mind-blue hover:underline">Línea de Prevención de Crisis</a></li>
+                    <li class="bg-dark-card p-3 rounded-lg"><a href="#" class="text-mind-blue hover:underline">Directorio de Psicólogos Certificados</a></li>
+                </ul>
+                <button id="back-from-resources" class="mt-6 text-text-muted hover:text-mind-blue">← Volver a Alertas</button>
+            </div>
+
+        </main>
+
+        <!-- NAV -->
+        <nav class="fixed bottom-0 left-0 right-0 bg-dark-card border-t border-gray-700 py-3 flex justify-around max-w-xl mx-auto bottom-nav">
+            
+            <button class="nav-button nav-item flex flex-col items-center text-mind-blue font-bold" data-view="chat" id="nav-chat-button">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 4v-4z"/>
+                </svg>
+                <span class="text-xs">Chat</span>
+            </button>
+
+            <button class="nav-button nav-item flex flex-col items-center text-text-muted" data-view="stats" id="nav-stats-button">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
+                </svg>
+                <span class="text-xs">Estadísticas</span>
+            </button>
+
+            <button class="nav-button nav-item flex flex-col items-center text-text-muted" data-view="alerts" id="nav-alerts-button">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.3 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <span class="text-xs">Alertas</span>
+            </button>
+
+            <!-- NUEVO BOTÓN HISTORIAL -->
+            <button class="nav-button nav-item flex flex-col items-center text-text-muted" data-view="history" id="nav-history-button">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-width="2" d="M3 5h18M3 12h18M3 19h18"/>
+                </svg>
+                <span class="text-xs">Historial</span>
+            </button>
+
+        </nav>
+        <!-- Contenedor general del historial -->
+        <div id="historial" class="historial-container"></div>
+
+    </section>
+    
+    <script src="app.js"></script> 
+</body>
+</html>
