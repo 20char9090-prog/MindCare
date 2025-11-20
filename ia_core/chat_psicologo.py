@@ -33,7 +33,7 @@ def iniciar_chat_psicologo():
          → Puntuación numérica del sentimiento
          → Nivel de riesgo
     """
-    print("\n--- 🧠 MindCare (Asistente Terapéutico) ---")
+    print("\n---  MindCare (Asistente Terapéutico) ---")
     user_uuid = input("Ingresa tu nombre de usuario para iniciar sesión: ").strip()
     if not user_uuid:
         user_uuid = "anonimo"
@@ -45,7 +45,7 @@ def iniciar_chat_psicologo():
     while True:
         texto_usuario = input("👤 Tú: ")
         if texto_usuario.lower() in ["salir", "exit"]:
-            print("👋 MindCare: Ha sido valiente al compartir. Cuídate y vuelve cuando quieras.")
+            print(" MindCare: Ha sido valiente al compartir. Cuídate y vuelve cuando quieras.")
             break
 
         if not texto_usuario.strip():  # Ignora mensajes vacíos
@@ -61,7 +61,7 @@ def iniciar_chat_psicologo():
             registrar_alerta(usuario_id, texto_usuario, analisis, riesgo)
 
         # Mostramos al usuario los resultados del análisis
-        print(f"\n🤖 MindCare IA:")
+        print(f"\n MindCare IA:")
         print(f"   → Clasificación: {analisis['clasificacion']}")
         print(f"   → Puntuación: {analisis['puntuacion_compuesta']:.3f}")
         print(f"   → Nivel de Riesgo: {riesgo}\n")

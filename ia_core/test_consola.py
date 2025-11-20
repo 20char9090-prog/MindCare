@@ -36,16 +36,16 @@ def iniciar_chat_consola():
        d. Analiza el mensaje usando 'analizar_nota' para detectar sentimiento.
        e. Detecta el nivel de riesgo con 'detectar_nivel_riesgo'.
        f. Prepara un mensaje de alerta según el nivel de riesgo:
-          - ALTO: 🚨 Alerta de riesgo alto.
-          - MEDIO: ⚠️ Riesgo medio, sugerencia de apoyo.
-          - BAJO: ✅ Riesgo bajo.
+          - ALTO:  Alerta de riesgo alto.
+          - MEDIO:  Riesgo medio, sugerencia de apoyo.
+          - BAJO:  Riesgo bajo.
        g. Imprime en consola los resultados:
           → Clasificación del sentimiento
           → Puntuación numérica
           → Nivel de riesgo
           → Mensaje de alerta correspondiente
     """
-    print("\n--- 🧠 MindCare Chat (Modo Consola) ---")
+    print("\n---  MindCare Chat (Modo Consola) ---")
     print("Escribe 'salir' o 'exit' para terminar la sesión.")
     print("-" * 35)
 
@@ -72,14 +72,14 @@ def iniciar_chat_consola():
         
         # Estilo de la respuesta según nivel de riesgo
         if riesgo == "ALTO":
-            alerta = "🚨 ALERTA DE RIESGO ALTO. BUSCA AYUDA INMEDIATA. 🚨"
+            alerta = " ALERTA DE RIESGO ALTO. BUSCA AYUDA INMEDIATA. 🚨"
         elif riesgo == "MEDIO":
             alerta = "⚠️ Riesgo Medio detectado. Se sugiere buscar apoyo."
         else:
             alerta = "✅ Riesgo Bajo. Estado emocional evaluado."
 
         # 3. Imprimir resultados
-        print("\n🤖 MindCare IA (Análisis):")
+        print("\n MindCare IA (Análisis):")
         print(f"   → Sentimiento: {clasificacion} (Puntuación: {puntuacion:.3f})")
         print(f"   → Evaluación de Riesgo: {riesgo}")
         print(f"   → Mensaje: {alerta}\n")

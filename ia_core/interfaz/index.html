@@ -3,38 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MindCare - Asistente Terapéutico</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
 
+    <title>MindCare - Asistente Terapéutico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Chart.js para gráficas profesionales -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsPDF y SheetJS para exportar -->
+    <script src="jspdf.umd.min.js"></script>
+    <script src="xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="dashboard.css">
 
     <style>
-        /* Scroll y estilos chat */
+        /* Fondo animado de partículas */
+        #particles-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Glassmorphism login card */
+        .glass-card {
+            background: rgba(30,38,54,0.82);
+            box-shadow: 0 8px 40px 0 rgba(77,208,225,0.18), 0 2.5px 8px 0 rgba(0,0,0,0.18);
+            border: 1.5px solid rgba(77,208,225,0.18);
+            backdrop-filter: blur(16px) saturate(140%);
+            -webkit-backdrop-filter: blur(16px) saturate(140%);
+        }
+
+        /* Icono animado */
+        .icon-animate {
+            animation: iconPop 1.2s cubic-bezier(.4,0,.2,1) infinite alternate;
+        }
+        @keyframes iconPop {
+            0% { transform: scale(1) rotate(-6deg); }
+            100% { transform: scale(1.08) rotate(6deg); }
+        }
+
+        /* Glow en el botón */
+        .glow-btn {
+            box-shadow: 0 0 16px 2px #4dd0e1cc, 0 0 32px 8px #f06292aa;
+        }
+        .glow-btn:hover {
+            box-shadow: 0 0 32px 8px #4dd0e1cc, 0 0 48px 16px #f06292cc;
+            filter: brightness(1.08);
+        }
+
+        /* ...existing code... (resto de estilos originales) */
         .chat-container::-webkit-scrollbar { width: 8px; }
-        .chat-container::-webkit-scrollbar-thumb { background-color: #4A5568; border-radius: 4px; }
+        .chat-container::-webkit-scrollbar-thumb { background-color: #4dd0e1; border-radius: 6px; }
         .chat-container::-webkit-scrollbar-track { background: #10172a; }
 
         .mindcare-message-style {
-            background-color: #1e2636; 
-            padding: 0.75rem;
-            border-radius: 0.75rem;
+            background: linear-gradient(135deg, #1e2636 60%, #232b3e 100%);
+            padding: 0.85rem 1.1rem;
+            border-radius: 1rem;
             max-width: 80%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 12px 0 rgba(77,208,225,0.08), 0 1.5px 4px 0 rgba(0,0,0,0.10);
+            border: 1.5px solid #232b3e;
+            transition: box-shadow 0.2s;
         }
 
-        .user-message-style {
-            background: linear-gradient(to right, #4dd0e1, #f06292); 
-            color: #ffffff;
-            padding: 0.75rem;
-            border-radius: 0.75rem;
-            max-width: 80%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+
+        .mindcare-message-style:hover, .user-message-style:hover {
+            box-shadow: 0 4px 24px 0 rgba(77,208,225,0.18), 0 2.5px 8px 0 rgba(0,0,0,0.13);
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        button, .nav-button {
+            transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.18s;
+        }
+        button:active, .nav-button:active {
+            transform: scale(0.97);
+        }
+        .nav-button:hover, .nav-item:hover {
+            background: linear-gradient(90deg, #232b3e 60%, #4dd0e1 100%);
+            color: #fff !important;
+            box-shadow: 0 2px 12px 0 #4dd0e1cc;
+        }
+
+        input[type="email"], input[type="password"], input[type="text"] {
+            background: rgba(255,255,255,0.10);
+            color: #e8e8e8;
+            border: 1.5px solid #232b3e;
+            transition: border 0.18s, box-shadow 0.18s;
+        }
+        input:focus {
+            border-color: #4dd0e1;
+            box-shadow: 0 0 0 2px #4dd0e1aa;
+        }
+
+        .bottom-nav {
+            box-shadow: 0 -2px 24px 0 #4dd0e13a;
+            background: linear-gradient(90deg, #1e2636 60%, #232b3e 100%);
+            border-top: 1.5px solid #232b3e;
         }
 
         .nav-item.active {
-            color: #4dd0e1; 
-            font-weight: 700; 
+            color: #4dd0e1;
+            font-weight: 700;
+            text-shadow: 0 2px 8px #4dd0e1cc;
+        }
+
+        .bg-dark-card {
+            box-shadow: 0 4px 32px 0 rgba(77,208,225,0.07), 0 1.5px 4px 0 rgba(0,0,0,0.10);
+            border: 1.5px solid #232b3e;
+        }
+        .rounded-3xl {
+            border-radius: 2rem !important;
+        }
+        .shadow-xl, .shadow-2xl {
+            box-shadow: 0 8px 40px 0 rgba(77,208,225,0.10), 0 2.5px 8px 0 rgba(0,0,0,0.13) !important;
+        }
+        .font-serif-title {
+            letter-spacing: 0.01em;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 2.2rem;
+            background: linear-gradient(90deg, #4dd0e1 40%, #f06292 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            text-shadow: 0 2px 12px #4dd0e1cc, 0 1.5px 4px #f0629299;
+        }
+        .subtitle {
+            font-size: 1.15rem;
+            color: #9ba3b4;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.01em;
+        }
+        .text-section {
+            color: #e8e8e8;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+        .text-muted-strong {
+            color: #b2c2d6;
+            font-weight: 500;
+        }
+        .dashboard-label {
+            color: #4dd0e1;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        }
+        .transition {
+            transition: all 0.18s cubic-bezier(.4,0,.2,1);
+        }
+        .hover\:scale-\[1\.01\]:hover {
+            transform: scale(1.01);
+        }
+        .drop-shadow-lg {
+            filter: drop-shadow(0 2px 8px #4dd0e1cc);
+        }
+        .border-mind-blue\/30 {
+            border-color: #4dd0e14d !important;
+        }
+        .bg-gradient-to-br {
+            background-size: 200% 200%;
+            animation: gradientMove 6s ease-in-out infinite alternate;
+        }
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
     </style>
 
@@ -65,25 +200,30 @@
 
 <body class="h-screen bg-dark-bg text-text-light font-sans overflow-hidden">
 
-    <!-- LOGIN -->
-    <section id="login-view" class="h-full flex items-center justify-center px-6">
-        <div class="bg-dark-card p-8 rounded-3xl shadow-xl w-full max-w-sm text-center">
+    <!-- Fondo animado de partículas -->
+    <canvas id="particles-bg"></canvas>
 
-            <div class="bg-gradient-to-br from-cyan-400 to-fuchsia-500 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    <!-- LOGIN -->
+    <section id="login-view" class="h-full flex items-center justify-center px-6 relative z-10">
+        <div class="glass-card p-10 rounded-3xl shadow-2xl w-full max-w-sm text-center border border-mind-blue/30 animate-fadein">
+            <div class="bg-gradient-to-br from-cyan-400 to-fuchsia-500 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 drop-shadow-lg icon-animate">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="url(#grad1)" stroke-width="2" fill="none"/>
+                    <defs>
+                        <linearGradient id="grad1" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#4dd0e1"/>
+                            <stop offset="100%" stop-color="#f06292"/>
+                        </linearGradient>
+                    </defs>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01"/>
                 </svg>
             </div>
-
-            <h1 class="text-3xl font-serif-title mb-2">MindCare</h1>
-            <p class="text-text-muted mb-6">Tu Asistente de Bienestar</p>
-
-            <input type="email" placeholder="Correo / Nombre" id="username-input" class="w-full p-3 rounded-xl bg-input-bg mb-3 focus:ring-2 focus:ring-mind-blue outline-none">
-            <input type="password" placeholder="Contraseña" id="password-input" class="w-full p-3 rounded-xl bg-input-bg mb-5 focus:ring-2 focus:ring-mind-blue outline-none">
-
+            <h1 class="font-serif-title mb-2 tracking-wide">MindCare</h1>
+            <p class="subtitle mb-7">Tu Asistente de Bienestar</p>
+            <input type="email" placeholder="Correo / Nombre" id="username-input" class="w-full p-3 rounded-xl bg-input-bg mb-3 focus:ring-2 focus:ring-mind-blue outline-none text-lg">
+            <input type="password" placeholder="Contraseña" id="password-input" class="w-full p-3 rounded-xl bg-input-bg mb-5 focus:ring-2 focus:ring-mind-blue outline-none text-lg">
             <button id="start-session-button"
-                class="w-full bg-gradient-to-r from-cyan-400 to-fuchsia-500 py-3 rounded-xl font-bold hover:scale-[1.01] transition">
+                class="w-full bg-gradient-to-r from-[#233047] to-[#4b5c7a] py-3 rounded-xl font-bold hover:scale-[1.03] transition text-blue-100 text-lg shadow-xl border border-blue-900/30">
                 Iniciar Sesión
             </button>
         </div>
@@ -101,28 +241,24 @@
 
             <!-- CHAT -->
             <div id="chat-view" class="pt-4 space-y-4">
-                
-                <h2 class="text-3xl font-serif-title mb-4">Chat Terapéutico</h2>
-                
-                <div id="risk-alert-display" class="hidden text-sm p-2 rounded-lg mb-2 text-center font-semibold"></div>
-
-                <div id="chat-messages" class="space-y-4"></div>
-
+                <h2 class="font-serif-title mb-4 flex items-center gap-2">
+                    <svg class="w-8 h-8 text-mind-blue animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 4v-4z"/></svg>
+                    Chat Terapéutico
+                </h2>
+                <div id="risk-alert-display" class="hidden text-sm p-2 rounded-lg mb-2 text-center font-semibold text-muted-strong"></div>
+                <div id="chat-messages" class="space-y-4 pb-8"></div>
                 <div class="fixed bottom-16 left-0 right-0 max-w-xl mx-auto px-4">
                     <div class="bg-dark-card border border-gray-700 p-3 rounded-2xl flex items-center gap-3 shadow-lg">
-                        
                         <div id="loading-indicator" class="hidden">
                             <svg class="animate-spin h-5 w-5 text-mind-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                         </div>
-                        
                         <input id="user-input" class="flex-grow bg-transparent outline-none text-text-light" placeholder="Escribe tu mensaje...">
-                        <button id="send-button" class="bg-gradient-to-r from-cyan-400 to-fuchsia-500 p-2 rounded-full">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                        <button id="send-button" class="bg-[#232b3e] hover:bg-[#2d3545] p-2 rounded-full text-blue-100 border border-blue-900/30 transition-colors duration-150">
+                            <svg class="w-5 h-5 text-blue-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                             </svg>
                         </button>
                     </div>
@@ -130,54 +266,179 @@
             </div>
 
             <!-- STATS -->
-            <div id="stats-view" class="hidden pt-6">
-                <h2 class="text-3xl font-serif-title text-mind-blue mb-6">Tu Viaje de Bienestar</h2>
+            <div id="stats-view" class="hidden pt-6 animate-fadein">
+                <h2 class="font-serif-title mb-6 flex items-center gap-2">
+                    <svg class="w-8 h-8 text-mind-blue animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/></svg>
+                    Tu Viaje de Bienestar
+                </h2>
                 <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-dark-card p-5 rounded-2xl">
-                        <p class="text-text-muted text-sm">Interacciones</p>
-                        <p class="text-4xl text-mind-blue font-bold">45</p>
+                    <div class="bg-dark-card p-5 rounded-2xl text-center">
+                        <p class="subtitle">Interacciones</p>
+                        <p id="stats-total-interacciones" class="text-4xl dashboard-label">-</p>
                     </div>
-                    <div class="bg-dark-card p-5 rounded-2xl">
-                        <p class="text-text-muted text-sm">Último Estado</p>
-                        <div class="flex items-center gap-3 mt-2">
-                            <span class="text-3xl">😊</span>
-                            <span class="text-sm text-text-muted">08/2027</span>
+                    <div class="bg-dark-card p-5 rounded-2xl text-center">
+                        <p class="subtitle">Último Estado</p>
+                        <div class="flex items-center gap-3 mt-2 justify-center">
+                            <span id="stats-emoji" class="text-3xl">😊</span>
+                            <span id="stats-ultimo-estado" class="text-sm text-muted-strong">-</span>
                         </div>
                     </div>
                 </div>
                 <div class="bg-dark-card p-6 rounded-2xl mb-6">
-                    <p class="text-text-muted mb-3">Tendencia Emocional</p>
-                    <div class="h-40 bg-dark-bg border border-gray-700 rounded-xl flex items-center justify-center text-sm text-text-muted">
-                        [ Gráfico ]
-                    </div>
+                    <p class="subtitle mb-3">Tendencia Emocional</p>
+                    <canvas id="emocionesChart" class="w-full h-40"></canvas>
                 </div>
             </div>
 
             <!-- ALERTS -->
             <div id="alerts-view" class="hidden pt-6">
-                <h2 class="text-3xl font-serif-title text-mind-blue mb-6">Alertas de Riesgo</h2>
-                <div id="alerts-list" class="space-y-4">
-                    <p id="no-alerts-message" class="text-text-muted text-center hidden">No tienes alertas de riesgo registradas.</p>
+                <div class="relative rounded-3xl shadow-2xl bg-gradient-to-br from-[#1e2636] via-[#232b3e] to-[#181c2a] border border-mind-blue/30 p-2 md:p-8 max-w-2xl mx-auto animate-fadein">
+                    <div class="sticky top-0 z-10 bg-gradient-to-b from-[#1e2636]/90 to-transparent rounded-t-3xl pb-2 mb-4 border-b border-mind-blue/20">
+                        <div class="flex items-center gap-2 mb-2">
+                            <svg class="w-8 h-8 text-mind-blue animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.3 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            <h2 class="font-serif-title drop-shadow-lg tracking-wide">Alertas de Riesgo</h2>
+                        </div>
+                        <div class="flex flex-wrap gap-2 items-center mb-2">
+                            <input id="alert-search" type="text" placeholder="Buscar mensaje o clasificación..." class="p-2 rounded-lg bg-dark-card border border-mind-blue/30 text-text-light focus:ring-2 focus:ring-mind-blue outline-none text-sm w-44 md:w-56" />
+                            <select id="alert-risk-filter" class="p-2 rounded-lg bg-dark-card border border-mind-blue/30 text-text-light focus:ring-2 focus:ring-mind-blue outline-none text-sm w-36 md:w-auto">
+                                <option value="">Todos los riesgos</option>
+                                <option value="ALTO">Alto</option>
+                                <option value="MEDIO">Medio</option>
+                                <option value="BAJO">Bajo</option>
+                            </select>
+                            <button id="export-alerts-pdf" class="px-3 py-2 rounded-lg bg-dark-card border border-mind-blue/30 text-text-light font-bold text-xs shadow hover:scale-105 transition whitespace-nowrap">Exportar PDF</button>
+                            <button id="export-alerts-xlsx" class="px-3 py-2 rounded-lg bg-dark-card border border-mind-blue/30 text-text-light font-bold text-xs shadow hover:scale-105 transition whitespace-nowrap">Exportar Excel</button>
+                        </div>
+                    </div>
+                    <div class="my-6">
+                        <canvas id="alertasRiesgoChart" class="w-full h-32"></canvas>
+                    </div>
+                    <div id="alerts-list" class="space-y-8 md:space-y-10 py-2 md:py-4 overflow-y-auto max-h-[400px]">
+                        <p id="no-alerts-message" class="subtitle text-center hidden">No tienes alertas de riesgo registradas.</p>
+                        <!-- Las tarjetas de alerta se renderizan dinámicamente aquí -->
+                    </div>
+                    <div class="mt-8 text-center flex flex-col items-center gap-2">
+                        <button id="go-to-resources" class="text-mind-blue border border-mind-blue py-2 px-4 rounded-xl hover:bg-mind-blue hover:text-dark-bg transition flex items-center gap-2 shadow-md">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M12 8v4l3 3"/></svg>
+                            Ver Recursos de Apoyo
+                        </button>
+                        <span class="text-xs text-text-muted italic">¿Necesitas ayuda? Revisa los recursos disponibles.</span>
+                    </div>
                 </div>
-                <div class="mt-8 text-center">
-                    <button id="go-to-resources" class="text-mind-blue border border-mind-blue py-2 px-4 rounded-xl hover:bg-mind-blue hover:text-dark-bg transition">
-                        Ver Recursos de Apoyo
-                    </button>
-                </div>
+                <style>
+                @keyframes fadein {
+                  from { opacity: 0; transform: translateY(30px); }
+                  to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fadein {
+                  animation: fadein 0.8s cubic-bezier(.4,0,.2,1);
+                }
+                </style>
             </div>
 
             <!-- HISTORY -->
-            <div id="history-view" class="hidden p-4">
-                <h2 class="text-xl font-bold mb-4">Historial de Mensajes de Usuarios</h2>
-                <div id="all-alerts-container" class="space-y-2">
-                    <!-- Aquí se cargarán dinámicamente todas las alertas -->
+            <div id="history-view" class="hidden pt-6">
+                <div class="relative rounded-3xl shadow-2xl bg-gradient-to-br from-[#1e2636] via-[#232b3e] to-[#181c2a] border border-mind-blue/30 p-2 md:p-8 max-w-2xl mx-auto animate-fadein">
+                    <div class="sticky top-0 z-10 bg-gradient-to-b from-[#1e2636]/90 to-transparent rounded-t-3xl pb-2 mb-4 border-b border-mind-blue/20">
+                        <div class="flex items-center gap-2 mb-2">
+                            <svg class="w-8 h-8 text-mind-blue animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-width="2" d="M3 5h18M3 12h18M3 19h18"/>
+                            </svg>
+                            <h2 class="font-serif-title drop-shadow-lg tracking-wide">Historial de Alertas</h2>
+                        </div>
+                        <div class="flex flex-wrap gap-2 items-center mb-2">
+                            <input id="history-search" type="text" placeholder="Buscar mensaje o clasificación..." class="p-2 rounded-lg bg-dark-card border border-mind-blue/30 text-text-light focus:ring-2 focus:ring-mind-blue outline-none text-sm w-44 md:w-56" />
+                            <select id="history-risk-filter" class="p-2 rounded-lg bg-dark-card border border-mind-blue/30 text-text-light focus:ring-2 focus:ring-mind-blue outline-none text-sm w-36 md:w-auto">
+                                <option value="">Todos los riesgos</option>
+                                <option value="ALTO">Alto</option>
+                                <option value="MEDIO">Medio</option>
+                                <option value="BAJO">Bajo</option>
+                            </select>
+                            <button id="export-history-pdf" class="px-3 py-2 rounded-lg bg-dark-card border border-mind-blue/30 text-text-light font-bold text-xs shadow hover:scale-105 transition whitespace-nowrap">Exportar PDF</button>
+                            <button id="export-history-xlsx" class="px-3 py-2 rounded-lg bg-dark-card border border-mind-blue/30 text-text-light font-bold text-xs shadow hover:scale-105 transition whitespace-nowrap">Exportar Excel</button>
+                        </div>
+                    </div>
+                    <div class="my-6">
+                        <canvas id="historyRiesgoChart" class="w-full h-32"></canvas>
+                    </div>
+                    <div id="all-alerts-container" class="space-y-2 overflow-y-auto max-h-[400px]">
+                        <!-- Aquí se cargarán dinámicamente todas las alertas -->
+                    </div>
                 </div>
+                <style>
+                @keyframes fadein {
+                  from { opacity: 0; transform: translateY(30px); }
+                  to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fadein {
+                  animation: fadein 0.8s cubic-bezier(.4,0,.2,1);
+                }
+                </style>
             </div>
+    <script>
+    // Gráfica de alertas por riesgo (barras)
+    let alertasRiesgoChart = null;
+    function renderAlertasRiesgoChart(bajo, medio, alto) {
+        const ctx = document.getElementById('alertasRiesgoChart').getContext('2d');
+        if(alertasRiesgoChart) alertasRiesgoChart.destroy();
+        alertasRiesgoChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Bajo', 'Medio', 'Alto'],
+                datasets: [{
+                    label: 'Alertas por Riesgo',
+                    data: [bajo, medio, alto],
+                    backgroundColor: [
+                        '#2ecc71', '#f1c40f', '#e74c3c'
+                    ],
+                    borderRadius: 8,
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: '#9ba3b4' }, grid: { color: '#232b3e' } },
+                    x: { ticks: { color: '#9ba3b4' }, grid: { color: '#232b3e' } }
+                }
+            }
+        });
+    }
+    // Gráfica de historial por riesgo (barras)
+    let historyRiesgoChart = null;
+    function renderHistoryRiesgoChart(bajo, medio, alto) {
+        const ctx = document.getElementById('historyRiesgoChart').getContext('2d');
+        if(historyRiesgoChart) historyRiesgoChart.destroy();
+        historyRiesgoChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Bajo', 'Medio', 'Alto'],
+                datasets: [{
+                    label: 'Alertas por Riesgo',
+                    data: [bajo, medio, alto],
+                    backgroundColor: [
+                        '#2ecc71', '#f1c40f', '#e74c3c'
+                    ],
+                    borderRadius: 8,
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: '#9ba3b4' }, grid: { color: '#232b3e' } },
+                    x: { ticks: { color: '#9ba3b4' }, grid: { color: '#232b3e' } }
+                }
+            }
+        });
+    }
+    </script>
 
             <!-- RESOURCES -->
             <div id="resources-view" class="hidden pt-6">
                 <h2 class="text-3xl font-serif-title text-mind-blue mb-6">Recursos y Ayuda</h2>
-                <p class="text-text-light mb-4">Aquí puedes encontrar enlaces a líneas de ayuda, terapeutas y guías de bienestar.</p>
+                <p class="text-section mb-4">Aquí puedes encontrar enlaces a líneas de ayuda, terapeutas y guías de bienestar.</p>
+                <span class="text-xs subtitle italic">¿Necesitas ayuda? Revisa los recursos disponibles.</span>
                 <ul class="space-y-3">
                     <li class="bg-dark-card p-3 rounded-lg"><a href="#" class="text-mind-blue hover:underline">Línea de Prevención de Crisis</a></li>
                     <li class="bg-dark-card p-3 rounded-lg"><a href="#" class="text-mind-blue hover:underline">Directorio de Psicólogos Certificados</a></li>
@@ -225,6 +486,101 @@
 
     </section>
     
-    <script src="app.js"></script> 
+    <script>
+    // Fondo de partículas animadas para el login
+    const canvas = document.getElementById('particles-bg');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const colors = ['#4dd0e1', '#f06292', '#fff', '#9ba3b4'];
+        const numParticles = 38;
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+        function createParticles() {
+            particles = [];
+            for (let i = 0; i < numParticles; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: 1.8 + Math.random() * 2.8,
+                    dx: -0.5 + Math.random(),
+                    dy: -0.5 + Math.random(),
+                    color: colors[Math.floor(Math.random() * colors.length)]
+                });
+            }
+        }
+        createParticles();
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let p of particles) {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, 2 * Math.PI);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = 0.18 + Math.random() * 0.22;
+                ctx.shadowColor = p.color;
+                ctx.shadowBlur = 16;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+                ctx.shadowBlur = 0;
+                p.x += p.dx * 0.7;
+                p.y += p.dy * 0.7;
+                if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+    }
+    </script>
+    <script src="app.js"></script>
+    <script>
+    // Gráfica profesional de emociones con Chart.js
+    let emocionesChart = null;
+    function renderEmocionesChart(labels, data) {
+        const ctx = document.getElementById('emocionesChart').getContext('2d');
+        if (emocionesChart) emocionesChart.destroy();
+        emocionesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Tendencia Emocional',
+                    data: data,
+                    fill: true,
+                    borderColor: '#4dd0e1',
+                    backgroundColor: 'rgba(77,208,225,0.08)',
+                    tension: 0.4,
+                    pointBackgroundColor: '#f06292',
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: true }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#232b3e' },
+                        ticks: { color: '#9ba3b4' }
+                    },
+                    x: {
+                        grid: { color: '#232b3e' },
+                        ticks: { color: '#9ba3b4' }
+                    }
+                }
+            }
+        });
+    }
+    // Hook para fetchStats en app.js
+    window.renderEmocionesChart = renderEmocionesChart;
+    </script>
 </body>
 </html>

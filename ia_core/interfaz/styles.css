@@ -11,7 +11,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, #2c3e50 0%, #1a1f2e 50%, #0f1419 100%);
+    background: #232b3e !important;
 }
 
 /* ----------------------------------- */
@@ -26,7 +26,7 @@ body {
    1. LOGIN VIEW BACKGROUND
    ======================================== */
 #login-view {
-    background: linear-gradient(135deg, #2c3e50 0%, #1a1f2e 50%, #0f1419 100%);
+    background: #232b3e !important;
     position: relative;
     overflow: hidden;
 }
@@ -81,7 +81,7 @@ body {
 
 /* Estilos del fondo */
 .chat-container {
-    background: linear-gradient(135deg, #2c3e50 0%, #1a1f2e 50%, #0f1419 100%);
+    background: #232b3e !important;
     position: relative;
 }
 
@@ -121,39 +121,35 @@ body {
 }
 
 /* Burbuja del Usuario: Estilo iOS moderno (Derecha) */
+
+/* Nuevo estilo: burbuja usuario azul-oscuro/verde suave */
+/* Burbuja usuario: azul-gris sobrio, forzado */
 .user-message-style {
-    background: linear-gradient(135deg, #4dd0e1 0%, #9575cd 50%, #ba68c8 100%);
-    color: #ffffff;
+    background: #232b3e !important;
+    color: #e3eaf3 !important;
     margin-left: auto;
     border-radius: 1.3rem;
     border-top-right-radius: 0.3rem;
-    box-shadow: 0 4px 15px rgba(77, 208, 225, 0.35),
-                0 8px 25px rgba(149, 117, 205, 0.25);
+    box-shadow: 0 4px 15px rgba(35, 48, 71, 0.13),
+                0 8px 25px rgba(75, 92, 122, 0.09);
     border: none;
     font-weight: 500;
 }
 
-.user-message-style::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, transparent 60%);
-    border-radius: inherit;
-    pointer-events: none;
-}
+
 
 /* Burbuja de MindCare (Asistente): Estilo iOS gris claro (Izquierda) */
+
+/* Nuevo estilo: burbuja MindCare gris oscuro/azul claro */
+/* Burbuja MindCare: gris suave sobrio */
 .mindcare-message-style {
-    background: linear-gradient(135deg, #e8eaf0 0%, #d4d7dd 100%);
-    color: #1a1f2e;
+    background: linear-gradient(90deg, #2d3545 0%, #5a647a 100%);
+    color: #f1f5fa;
     margin-right: auto;
     border-radius: 1.3rem;
     border-top-left-radius: 0.3rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12),
-                0 4px 16px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(45, 53, 69, 0.10),
+                0 4px 16px rgba(90, 100, 122, 0.08);
     border: none;
     font-weight: 500;
 }

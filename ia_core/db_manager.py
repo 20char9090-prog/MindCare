@@ -37,6 +37,12 @@ def create_connection() -> Optional[sqlite3.Connection]:
         conn = sqlite3.connect(str(DB_PATH))
         conn.execute("PRAGMA foreign_keys = ON;")
         conn.row_factory = sqlite3.Row
+        # Asegurar que las tablas y columnas necesarias existan en la DB
+        try:
+            setup_db(conn)
+        except Exception:
+            # Si por alguna razón la inicialización falla, no interrumpimos la conexión
+            pass
         return conn
     except sqlite3.Error as e:
         print(f"[DB] Error al conectar: {e}")
@@ -74,10 +80,20 @@ def setup_db(conn: sqlite3.Connection):
                 clasificacion TEXT NOT NULL,
                 riesgo TEXT NOT NULL,
                 puntuacion REAL,
+                valor REAL,
                 fecha_alerta TEXT NOT NULL,
                 FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
             )
         """)
+        # Asegurar columna 'valor' en bases de datos antiguas
+        cur.execute("PRAGMA table_info(alertas)")
+        cols = [row[1] for row in cur.fetchall()]
+        if 'valor' not in cols:
+            try:
+                cur.execute("ALTER TABLE alertas ADD COLUMN valor REAL")
+            except sqlite3.OperationalError:
+                # Si falla por alguna razón, continuamos sin interrumpir
+                pass
 
 # =====================================
 # Función para registrar un usuario
@@ -125,7 +141,7 @@ def registrar_usuario_y_obtener_id(user_uuid: str) -> int:
 # =====================================
 # Función para registrar alertas
 # =====================================
-def registrar_alerta(usuario_id: int, mensaje: str, analisis: Dict, riesgo: str):
+def registrar_alerta(usuario_id: int, mensaje: str, analisis: Dict, riesgo: str, valor: float = None):
     """
     Guarda una alerta en la base de datos para un usuario específico.
 
@@ -153,14 +169,15 @@ def registrar_alerta(usuario_id: int, mensaje: str, analisis: Dict, riesgo: str)
     with conn:
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO alertas (usuario_id, mensaje, clasificacion, riesgo, puntuacion, fecha_alerta)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO alertas (usuario_id, mensaje, clasificacion, riesgo, puntuacion, valor, fecha_alerta)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (
             usuario_id,
             mensaje,
             analisis.get("clasificacion", "NEUTRO"),
             riesgo,
-            float(analisis.get("puntuacion_compuesta", 0.0)),
+            float(analisis.get("puntuacion_compuesta", analisis.get("puntuacion", 0.0) or 0.0)),
+            float(valor) if valor is not None else (float(analisis.get("valor", 0.0)) if analisis.get("valor") is not None else None),
             now
         ))
     conn.close()
@@ -189,7 +206,7 @@ def obtener_alertas(usuario_id: int) -> List[Dict]:
         return []
     cur = conn.cursor()
     cur.execute("""
-        SELECT mensaje, clasificacion, riesgo, puntuacion, fecha_alerta
+        SELECT mensaje, clasificacion, riesgo, puntuacion, valor, fecha_alerta
         FROM alertas
         WHERE usuario_id = ?
         ORDER BY fecha_alerta DESC
@@ -197,6 +214,47 @@ def obtener_alertas(usuario_id: int) -> List[Dict]:
     rows = cur.fetchall()
     conn.close()
     return [dict(row) for row in rows]
+
+
+# =====================================
+# Función para obtener estadísticas y tendencia emocional
+# =====================================
+def obtener_stats_y_tendencia(usuario_id: int) -> dict:
+    """
+    Devuelve estadísticas y tendencia emocional para el usuario:
+    - total_interacciones: total de alertas
+    - ultimo_estado: última clasificación
+    - tendencia_emocional: lista de {fecha, valor}
+    """
+    conn = create_connection()
+    if conn is None:
+        return {
+            "total_interacciones": 0,
+            "ultimo_estado": "-",
+            "tendencia_emocional": []
+        }
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT clasificacion, puntuacion, fecha_alerta, riesgo
+        FROM alertas
+        WHERE usuario_id = ?
+        ORDER BY fecha_alerta ASC
+    """, (usuario_id,))
+    rows = cur.fetchall()
+    conn.close()
+    total = len(rows)
+    ultimo_estado = rows[-1]["clasificacion"] if rows else "-"
+    ultimo_riesgo = rows[-1]["riesgo"] if rows else "-"
+    tendencia = [
+        {"fecha": row["fecha_alerta"], "valor": row["puntuacion"]}
+        for row in rows
+    ]
+    return {
+        "total_interacciones": total,
+        "ultimo_estado": ultimo_estado,
+        "ultimo_riesgo": ultimo_riesgo,
+        "tendencia_emocional": tendencia
+    }
 
 # =====================================
 # Inicialización directa de la DB
@@ -210,4 +268,4 @@ if __name__ == "__main__":
     if conn:
         setup_db(conn)
         conn.close()
-        print("✅ Base de datos inicializada correctamente.")
+        print("Base de datos inicializada correctamente.")
