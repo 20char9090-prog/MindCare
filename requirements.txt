@@ -1,0 +1,9 @@
+flask
+flask-cors
+requests
+python-dotenv
+python-dateutil
+pytz
+# Optional / recommended
+python-pptx  # only if you want to generate PPTX slides programmatically
+PyYAML

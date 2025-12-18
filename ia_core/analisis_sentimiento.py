@@ -6,9 +6,9 @@ from typing import Dict, List, Tuple
 from difflib import SequenceMatcher
 import logging
 
-# =========================================================
+
 # CONFIGURACIÓN INICIAL Y LÉXICOS
-# =========================================================
+
 try:
     sia = SentimentIntensityAnalyzer()
 except LookupError:
@@ -34,9 +34,20 @@ LEXICO = {
     ]
 }
 
-# =========================================================
 # FUNCIONES AUXILIARES
-# =========================================================
+# Este conjunto de funciones y listas define la base del sistema para interpretar y evaluar textos.
+# Aquí se normaliza el contenido recibido, eliminando acentos, repeticiones exageradas y espacios
+# innecesarios para facilitar comparaciones más precisas y consistentes.
+#
+# También se establecen las palabras y frases que representan riesgo extremo, las cuales se
+# normalizan previamente para asegurar que puedan detectarse incluso cuando el usuario escribe
+# con variaciones o pequeños errores.
+#
+# Las funciones de similitud y búsqueda con tolerancia a typos permiten identificar patrones
+# preocupantes aunque no estén escritos de forma exacta, aumentando la capacidad del sistema
+# para reconocer señales sensibles de manera más humana y flexible, sin depender únicamente
+# de coincidencias literales.
+
 def norm(t: str) -> str:
     """Normaliza texto: minúsculas, sin acentos, sin repeticiones excesivas"""
     t = t.lower().strip()
@@ -45,9 +56,9 @@ def norm(t: str) -> str:
     t = re.sub(r'(.)\1{2,}', r'\1', t)  # "hoooola" -> "hola"
     return re.sub(r'\s+', ' ', t)
 
-# =========================================================
+
 # PATRONES DE RIESGO EXTREMO
-# =========================================================
+
 
 # Palabras clave que SIEMPRE indican riesgo extremo
 PALABRAS_CRITICAS = [
@@ -127,6 +138,15 @@ def buscar_con_typos(texto: str, patrones: List[str], umbral: float = 0.85) -> L
                 encontradas.append(f"'{patron}' (similitud: {sim:.2f}, encontrado: '{ventana}')")
     
     return encontradas
+# Esta función se encarga de detectar mensajes de riesgo extremo relacionados con ideación suicida
+# o expresiones altamente preocupantes. Primero busca coincidencias exactas con palabras y frases
+# críticas previamente definidas, y si no encuentra resultados, aplica una búsqueda más flexible
+# que tolera errores de escritura o variaciones comunes en el lenguaje.
+#
+# Además, utiliza expresiones regulares para identificar patrones que puedan aparecer de forma
+# parcialmente alterada, permitiendo reconocer frases peligrosas incluso cuando no están escritas
+# de forma perfecta. El objetivo es aumentar la sensibilidad del sistema sin perder precisión,
+# devolviendo tanto si existe riesgo extremo como las coincidencias específicas detectadas.
 
 def contiene_contenido_extremo(texto_normalizado: str) -> Tuple[bool, List[str]]:
     """
@@ -183,9 +203,14 @@ def contiene_contenido_extremo(texto_normalizado: str) -> Tuple[bool, List[str]]
     
     return (len(encontradas) > 0, encontradas)
 
-# =========================================================
+
 # ANÁLISIS DE SENTIMIENTO
-# =========================================================
+# La idea es obtener una estimación equilibrada del tono emocional general, evitando que textos muy
+# cortos o con palabras neutras aisladas generen resultados extremos. Por eso normaliza el resultado
+# según la longitud del mensaje y mantiene el valor dentro de un rango controlado entre -1 y 1,
+# permitiendo una interpretación más estable y realista del sentimiento.
+
+
 def senti_es(t: str) -> float:
     """Análisis simple basado en léxico español"""
     palabras = t.split()
@@ -213,6 +238,14 @@ def senti_es(t: str) -> float:
     
     factor = max(5, len(palabras) / 3)
     return max(-1, min(1, p / factor))
+# Esta función se encarga de examinar el contenido de un texto para interpretar su carga emocional.
+# A partir del análisis, busca detectar si el mensaje expresa algo extremo o preocupante, y si no,
+# evalúa el sentimiento general combinando diferentes métodos de análisis.
+#
+# El resultado permite clasificar el texto como POSITIVO, NEGATIVO o NEUTRO, junto con una puntuación
+# que refleja la intensidad emocional detectada. En caso de encontrar contenido crítico, se marca
+# directamente como EXTREMO y se registran las coincidencias que lo justifican, facilitando así
+# una respuesta más segura y contextual dentro del sistema.
 
 def analizar_nota(texto: str) -> Dict:
     """
@@ -259,9 +292,17 @@ def analizar_nota(texto: str) -> Dict:
         "contenido_extremo": []
     }
 
-# =========================================================
+# 
 # DETECCIÓN DE RIESGO
-# =========================================================
+# # Esta función se encarga de analizar un texto junto con los resultados de un análisis previo
+# para determinar el nivel de riesgo emocional de la persona. Su objetivo es identificar
+# posibles señales de alerta como ideación suicida, frases asociadas a malestar profundo
+# o estados de vulnerabilidad, y clasificarlos en riesgo ALTO, MEDIO o BAJO.
+# 
+# Primero prioriza situaciones críticas, como contenido extremo o clasificaciones graves,
+# luego evalúa expresiones de riesgo moderado y, si no se detecta nada preocupante,
+# considera el riesgo como bajo. Además, devuelve los motivos que justifican la decisión
+# y un valor numérico que facilita su uso en otras partes del sistema.
 def detectar_nivel_riesgo(texto: str, analisis: Dict) -> Tuple[str, List[str], int]:
     """
     Retorna: (nivel_riesgo, motivos, valor_riesgo)
@@ -278,9 +319,9 @@ def detectar_nivel_riesgo(texto: str, analisis: Dict) -> Tuple[str, List[str], i
     logging.debug(f"Texto normalizado: {t}")
     logging.debug(f"Análisis recibido: {analisis}")
 
-    # ============================================
+
     # PRIORIDAD 1: RIESGO ALTO
-    # ============================================
+    # 
 
     # 1A. Clasificación extrema del análisis
     if analisis.get("clasificacion") == "EXTREMO":
@@ -354,9 +395,19 @@ def generar_recomendacion(nivel_riesgo: str) -> str:
     
     return recomendaciones.get(nivel_riesgo, "")
 
-# =========================================================
+# 
 # FUNCIÓN PRINCIPAL DE ANÁLISIS COMPLETO
-# =========================================================
+# # Esta función se encarga de realizar el análisis completo del texto que envía el usuario.
+# Primero evalúa el sentimiento general del mensaje, luego determina si existe algún
+# nivel de riesgo emocional y cuáles son los motivos que lo provocan. A partir de ese
+# riesgo también genera una recomendación automática.
+#
+# Además, organiza toda esta información en una estructura clara que incluye el texto
+# original, el texto normalizado, los datos del sentimiento y los detalles del riesgo,
+# para que puedan ser utilizados fácilmente por otras partes del sistema.
+#
+# En pocas palabras, aquí se concentra todo el proceso principal de análisis emocional
+# del mensaje.
 def analisis_completo(texto: str) -> Dict:
     """
     Realiza un análisis completo del texto.

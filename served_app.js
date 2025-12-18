@@ -1,4 +1,4 @@
-// =============================
+﻿// =============================
 // EXPORTACIÓN PDF Y EXCEL
 // =============================
 function exportToPDF(data, filename) {
@@ -191,14 +191,14 @@ function startSession(username) {
         console.error("El email/nombre de usuario debe tener al menos 2 caracteres.");
         return;
     }
-    // Usar el nombre como identificador persistente para que el historial se recupere
-    // Si prefieres usar un identificador distinto, podemos ajustarlo más tarde.
-    USER_ID = trimmedUsername; // e.g. 'camila'
+
+    // Recuperar o asignar un ID único al usuario
+    USER_ID = localStorage.getItem('mindcare_user_id') || crypto.randomUUID();
     localStorage.setItem('mindcare_user_id', USER_ID);
     localStorage.setItem('mindcare_username', trimmedUsername);
+
     USER_NAME = trimmedUsername;
 
-    // Mostrar la UI inmediatamente
     loginView?.classList.add('hidden');
     mainAppViews?.classList.remove('hidden');
 
@@ -208,57 +208,7 @@ function startSession(username) {
     }
 
     navigateTo('chat');
-    // Note: registration/login flows are handled explicitly via the buttons.
-    // Además cargamos historial aunque sea sesión invitado
-    try{
-        completeLogin(USER_ID, USER_NAME, localStorage.getItem('mindcare_token'));
-    }catch(e){ console.debug('No se pudo completar carga de historial en guest:', e); }
 }
-
-
-/**
- * Completa la inicialización de la sesión (almacena en localStorage, guarda token si existe,
- * muestra la UI y carga el historial de mensajes).
- */
-async function completeLogin(user_id, username, token=null) {
-    USER_ID = user_id;
-    USER_NAME = username;
-    localStorage.setItem('mindcare_user_id', USER_ID);
-    localStorage.setItem('mindcare_username', USER_NAME);
-    if(token) localStorage.setItem('mindcare_token', token);
-
-    loginView?.classList.add('hidden');
-    mainAppViews?.classList.remove('hidden');
-    if(chatMessages?.children.length === 0) addMessage('MindCare', `¡Hola, **${USER_NAME}**!?`, null, true);
-    navigateTo('chat');
-
-    // Registrar display name en backend (no necesario si ya está registrado)
-    try {
-        await fetch(`${API_BASE_URL}/user`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: USER_ID, username: USER_NAME }) });
-    } catch(_) {}
-
-    // Cargar historial de mensajes
-    try {
-        const res = await fetch(`${API_BASE_URL}/messages?user_id=${USER_ID}`);
-        if(res.ok) {
-            const data = await res.json();
-            const msgs = data.messages || [];
-            if(chatMessages) chatMessages.innerHTML = '';
-            msgs.forEach(m => {
-                if(m.sender === 'user') addMessage('Tú', m.mensaje, m.analisis);
-                else addMessage('MindCare', m.mensaje, m.analisis);
-            });
-        }
-    } catch(err) {
-        console.debug('No se pudo cargar historial de mensajes:', err);
-    }
-}
-
-
-/**
- * Registrar nueva cuenta (Crear Cuenta)
- */
-// Register/login UI functions were removed to restore simpler guest flow.
 
 
 // =====================================
@@ -595,12 +545,9 @@ async function fetchStats() {
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- Inicio de Sesión ---
-    // Iniciar sesión rápido (guest) — no bloquea si el backend falla
     startSessionButton?.addEventListener('click', () =>
         startSession(usernameInput.value)
     );
-
-    // (Crear cuenta removed) 
 
     usernameInput?.addEventListener('keypress', e => {
         if(e.key === 'Enter') startSessionButton.click();
@@ -681,11 +628,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Restaurar sesión guardada ---
     const savedUserId = localStorage.getItem('mindcare_user_id');
     const savedUsername = localStorage.getItem('mindcare_username');
-    const savedToken = localStorage.getItem('mindcare_token');
 
     if(savedUserId && savedUsername){
-        // Restaurar sesión usando datos almacenados
-        completeLogin(savedUserId, savedUsername, savedToken);
+        startSession(savedUsername);
     } else {
         loginView?.classList.remove('hidden');
         mainAppViews?.classList.add('hidden');
@@ -694,3 +639,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Botón de conexión a Telegram eliminado por petición del usuario.
 });
+
